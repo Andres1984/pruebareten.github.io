@@ -1,0 +1,13 @@
+name: "Retención"
+output_dir: "."
+navbar:
+  title: "Semillero"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Ejemplo1"
+      href: dashboard.html 
+    - text: "Ejemplo2"
+      href: ejemplo2.html 
+html_document:
+    theme: darkly

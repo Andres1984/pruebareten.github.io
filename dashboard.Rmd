@@ -1,0 +1,153 @@
+---
+title: "Retención"
+output: flexdashboard::flex_dashboard
+---
+
+```{r setup, include = FALSE}
+library(datos)
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(data.table)
+library(flexdashboard)
+library(digest)
+library(dplyr)
+library(plotly)
+library("viridis")  
+library(readxl)
+library(knitr) # used only for post creation
+knitr::opts_chunk$set(fig.width = 5, fig.asp = 1 / 3)
+library(readxl)
+union_20210706 <- read_excel("union_20210706.xlsx")
+
+Base=union_20210706
+Base$EDAD_ICFES=as.numeric(Base$EDAD_ICFES)
+Base$PROMEDIOACUMULADO=as.numeric(Base$PROMEDIOACUMULADO)
+Base$PROMEDIOACUMULADO=round(Base$PROMEDIOACUMULADO,2)
+Base1=subset(Base, NUM_PERIODO==1)
+Estudiantes=table(Base1$YEARACADEMICO, Base1$ESTADO_PROGRAMA)
+
+
+a=as.data.frame(cbind(Estudiantes[,1],Estudiantes[,2],Estudiantes[,3],Estudiantes[,4]))
+a$Total=rowSums(a)
+colnames(a)=colnames(Estudiantes)
+
+library(tidyverse)
+
+deser=Base %>% 
+  group_by(IDESTUDIANTE) %>% 
+  filter(NUM_PERIODO == max(NUM_PERIODO)) %>%
+  distinct(IDESTUDIANTE, .keep_all = TRUE)
+
+
+Base$ESTADOACTUALU=ifelse(Base$ESTADO_PROGRAMA=="Ausente" & Base$MATRICULADO=="S","MATRICULADO", Base$ESTADO_PROGRAMA)
+
+deser$ESTADOACTUALU=ifelse(deser$ESTADO_PROGRAMA=="Ausente" & deser$MATRICULADO=="S","MATRICULADO", deser$ESTADO_PROGRAMA)
+
+
+deser$ESTADOACTUALUCoh=0
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2014,"Deser2014", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2015,"Deser2015", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2016,"Deser2016", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2017,"Deser2017", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2018,"Deser2018", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2019,"Deser2019", deser$ESTADOACTUALUCoh)
+deser$ESTADOACTUALUCoh=ifelse(deser$ESTADO_PROGRAMA=="Desertor" & deser$YEARACADEMICO==2020,"Deser2020", deser$ESTADOACTUALUCoh)
+
+Base$ESTADOACTUALUCoh=0
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2014,"Deser2014", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2015,"Deser2015", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2016,"Deser2016", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2017,"Deser2017", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2018,"Deser2018", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2019,"Deser2019", Base$ESTADOACTUALUCoh)
+Base$ESTADOACTUALUCoh=ifelse(Base$ESTADO_PROGRAMA=="Desertor" & Base$YEARACADEMICO==2020,"Deser2020", Base$ESTADOACTUALUCoh)
+
+tabla=table(deser$YEARACADEMICO,deser$ESTADOACTUALU)
+tabla
+
+
+Estudiantes=table(Base1$YEARACADEMICO, Base1$ESTADO_PROGRAMA)
+
+
+
+
+tabla1=table(Base$YEARACADEMICO,Base$ESTADOACTUALU)
+tabla1
+
+
+
+
+tabla2=as.data.frame(cbind(Estudiantes[,1],Estudiantes[,2],Estudiantes[,3],Estudiantes[,4]))
+tabla2$Total=rowSums(tabla2)
+colnames(tabla2)=c("Matriculado","Desertor","Graduado","Retirado","Total")
+
+tabla3=as.data.frame(cbind(tabla[,1],tabla[,2],tabla[,3],tabla[,4]))
+colnames(tabla3)=c("Desertor","Graduado","Matriculado","Retirado")
+
+tabla3$Matriculado[1]=tabla2$Total[1]
+
+for (i in 2:7){
+  
+  tabla3$Matriculado[i]=tabla2$Total[i]+tabla3$Matriculado[i-1]-tabla3$Desertor[i-1]-tabla3$Graduado[i-1]-tabla3$Retirado[i-1]
+  
+}
+tabla3$EstNuevos=tabla2$Total
+
+tabla3$Periodo=2014:2020
+
+
+
+
+library(reshape2)
+tabla4<- melt(tabla3, id.vars = "Periodo", value.name="Num_Estud",variable.name = "Estado")
+
+
+
+
+
+```
+
+## Columna 1
+
+### Estados por año
+
+```{r}
+library(plotly)
+d<- tabla4 %>% ggplot(aes(x=Periodo,y=Num_Estud,fill=Estado))+
+  geom_bar(stat="identity")+
+  scale_fill_brewer(palette="Paired")+
+
+  theme_minimal()
+ggplotly(d)
+```
+
+### Genero
+
+```{r}
+sexo=deser %>% ggplot(aes(x= ESTADOACTUALU,fill=GENERO))+
+  geom_bar()+
+  scale_fill_brewer(palette="Paired")+
+  
+  theme_minimal()
+ggplotly(sexo)
+
+```
+
+### Relación Promedio Prueba Saber 11
+
+```{r}
+library(plotly)
+c <- deser %>%  ggplot(aes(PUNTAJESABER11, PROMEDIOACUMULADO, col= ESTADOACTUALU, text =  paste("Educación Madre",EDU_MADRE, "<br>","Cohorte", COHORTE,"<br>", "Apoyo Académico", APOYO_ACADEMICO,"<br>","Apoyo Financiero", APOYO_FINANCIERO,"<br>", "Colegio", TIPOCOLEGIO,"<br>", "Genero", GENERO,"<br>","Estado Universidad", ESTADO_IES,"<br>","Último Semestre", NUM_PERIODO    )))+
+  geom_point(size=deser$NUM_PERIODO, alpha=0.5)+ scale_color_brewer(palette = 'Dark2') + theme(axis.text.x = element_blank())
+ggplotly(c)
+```
+
+## Columna 2
+
+### Resumen
+
+```{r}
+Base1 %>%
+  DT::datatable()
+```
