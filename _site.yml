@@ -5,5 +5,12 @@ navbar:
   left:
     - text: "Inicio"
       href: index.html
+  right:    
+    - icon: fa-cube fa-lg
+      href: https://andres-martinez1984.shinyapps.io/Retencion2021/#section-datos-históricos
 html_document:
     theme: darkly
+    
+    
+    
+    
