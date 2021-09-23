@@ -1,9 +1,9 @@
 name: "Retención"
 output_dir: "."
 navbar:
-  title: "Semillero"
+  title: "Modelo de Retención Universidad Externado"
   left:
-    - text: "Home"
+    - text: "Inicio"
       href: index.html
 html_document:
     theme: darkly

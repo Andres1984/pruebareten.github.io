@@ -1,9 +1,15 @@
 ---
-title: "Index"
+title: ""
 ---
 
 
-## Prueba
+
+<img src="externado.png" style="width:20%">
+
+
+
+## Introducción del proyecto
 
 
 Esta es una prueba
+
